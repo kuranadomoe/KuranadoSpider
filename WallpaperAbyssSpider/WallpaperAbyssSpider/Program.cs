@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace WallpaperAbyssSpider
+namespace kuranado.moe.Spider.WallpaperAbyss
 {
     static class Program
     {

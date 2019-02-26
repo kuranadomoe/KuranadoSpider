@@ -1,4 +1,4 @@
-﻿namespace WallpaperAbyssSpider
+﻿namespace kuranado.moe.Spider.WallpaperAbyss
 {
     partial class MainForm
     {
@@ -31,22 +31,22 @@
             this.label1 = new System.Windows.Forms.Label();
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tpDownload = new System.Windows.Forms.TabPage();
-            this.tpSetting = new System.Windows.Forms.TabPage();
-            this.pbCurDownload = new System.Windows.Forms.ProgressBar();
-            this.pbTotalDownload = new System.Windows.Forms.ProgressBar();
-            this.rtbDisplay = new System.Windows.Forms.RichTextBox();
-            this.dudMaxDownloadThread = new System.Windows.Forms.DomainUpDown();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.tbMinDownloadTime = new System.Windows.Forms.TextBox();
-            this.tbImgSaveDir = new System.Windows.Forms.TextBox();
-            this.tbImgLinksSavePath = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
+            this.btnStartDownload = new System.Windows.Forms.Button();
             this.rtbTargetLinks = new System.Windows.Forms.RichTextBox();
+            this.rtbDisplay = new System.Windows.Forms.RichTextBox();
+            this.pbTotalDownload = new System.Windows.Forms.ProgressBar();
+            this.pbCurDownload = new System.Windows.Forms.ProgressBar();
+            this.tpSetting = new System.Windows.Forms.TabPage();
             this.label6 = new System.Windows.Forms.Label();
             this.dudMaxRetry = new System.Windows.Forms.DomainUpDown();
-            this.btnStartDownload = new System.Windows.Forms.Button();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.tbImgLinksSavePath = new System.Windows.Forms.TextBox();
+            this.tbImgSaveDir = new System.Windows.Forms.TextBox();
+            this.tbMinDownloadTime = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.dudMaxDownloadThread = new System.Windows.Forms.DomainUpDown();
             this.tcMain.SuspendLayout();
             this.tpDownload.SuspendLayout();
             this.tpSetting.SuspendLayout();
@@ -87,6 +87,53 @@
             this.tpDownload.Text = "下载";
             this.tpDownload.UseVisualStyleBackColor = true;
             // 
+            // btnStartDownload
+            // 
+            this.btnStartDownload.Location = new System.Drawing.Point(8, 336);
+            this.btnStartDownload.Name = "btnStartDownload";
+            this.btnStartDownload.Size = new System.Drawing.Size(450, 23);
+            this.btnStartDownload.TabIndex = 9;
+            this.btnStartDownload.Text = "Start Download";
+            this.btnStartDownload.UseVisualStyleBackColor = true;
+            // 
+            // rtbTargetLinks
+            // 
+            this.rtbTargetLinks.Location = new System.Drawing.Point(8, 38);
+            this.rtbTargetLinks.Name = "rtbTargetLinks";
+            this.rtbTargetLinks.Size = new System.Drawing.Size(450, 123);
+            this.rtbTargetLinks.TabIndex = 8;
+            this.rtbTargetLinks.Text = "";
+            // 
+            // rtbDisplay
+            // 
+            this.rtbDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.rtbDisplay.Location = new System.Drawing.Point(8, 167);
+            this.rtbDisplay.Name = "rtbDisplay";
+            this.rtbDisplay.ReadOnly = true;
+            this.rtbDisplay.Size = new System.Drawing.Size(450, 163);
+            this.rtbDisplay.TabIndex = 7;
+            this.rtbDisplay.Text = "";
+            // 
+            // pbTotalDownload
+            // 
+            this.pbTotalDownload.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pbTotalDownload.Location = new System.Drawing.Point(8, 394);
+            this.pbTotalDownload.Name = "pbTotalDownload";
+            this.pbTotalDownload.Size = new System.Drawing.Size(450, 23);
+            this.pbTotalDownload.TabIndex = 6;
+            // 
+            // pbCurDownload
+            // 
+            this.pbCurDownload.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pbCurDownload.Location = new System.Drawing.Point(8, 365);
+            this.pbCurDownload.Name = "pbCurDownload";
+            this.pbCurDownload.Size = new System.Drawing.Size(450, 23);
+            this.pbCurDownload.TabIndex = 5;
+            // 
             // tpSetting
             // 
             this.tpSetting.Controls.Add(this.label6);
@@ -107,35 +154,108 @@
             this.tpSetting.Text = "设置";
             this.tpSetting.UseVisualStyleBackColor = true;
             // 
-            // pbCurDownload
+            // label6
             // 
-            this.pbCurDownload.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.pbCurDownload.Location = new System.Drawing.Point(8, 365);
-            this.pbCurDownload.Name = "pbCurDownload";
-            this.pbCurDownload.Size = new System.Drawing.Size(450, 23);
-            this.pbCurDownload.TabIndex = 5;
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(26, 76);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(143, 12);
+            this.label6.TabIndex = 9;
+            this.label6.Text = "失败重试次数          :";
             // 
-            // pbTotalDownload
+            // dudMaxRetry
             // 
-            this.pbTotalDownload.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.pbTotalDownload.Location = new System.Drawing.Point(8, 394);
-            this.pbTotalDownload.Name = "pbTotalDownload";
-            this.pbTotalDownload.Size = new System.Drawing.Size(450, 23);
-            this.pbTotalDownload.TabIndex = 6;
-            // 
-            // rtbDisplay
-            // 
-            this.rtbDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.dudMaxRetry.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.rtbDisplay.Location = new System.Drawing.Point(8, 167);
-            this.rtbDisplay.Name = "rtbDisplay";
-            this.rtbDisplay.ReadOnly = true;
-            this.rtbDisplay.Size = new System.Drawing.Size(450, 163);
-            this.rtbDisplay.TabIndex = 7;
-            this.rtbDisplay.Text = "";
+            this.dudMaxRetry.Enabled = false;
+            this.dudMaxRetry.Items.Add("0");
+            this.dudMaxRetry.Items.Add("1");
+            this.dudMaxRetry.Items.Add("2");
+            this.dudMaxRetry.Items.Add("3");
+            this.dudMaxRetry.Items.Add("4");
+            this.dudMaxRetry.Items.Add("5");
+            this.dudMaxRetry.Items.Add("6");
+            this.dudMaxRetry.Items.Add("7");
+            this.dudMaxRetry.Items.Add("8");
+            this.dudMaxRetry.Location = new System.Drawing.Point(175, 74);
+            this.dudMaxRetry.Name = "dudMaxRetry";
+            this.dudMaxRetry.ReadOnly = true;
+            this.dudMaxRetry.Size = new System.Drawing.Size(225, 21);
+            this.dudMaxRetry.Sorted = true;
+            this.dudMaxRetry.TabIndex = 8;
+            this.dudMaxRetry.Text = "4";
+            this.dudMaxRetry.Wrap = true;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(26, 190);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(143, 12);
+            this.label5.TabIndex = 7;
+            this.label5.Text = "图片链接保存路径      :";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(26, 151);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(143, 12);
+            this.label4.TabIndex = 6;
+            this.label4.Text = "图片保存路径          :";
+            // 
+            // tbImgLinksSavePath
+            // 
+            this.tbImgLinksSavePath.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbImgLinksSavePath.Location = new System.Drawing.Point(175, 187);
+            this.tbImgLinksSavePath.Name = "tbImgLinksSavePath";
+            this.tbImgLinksSavePath.Size = new System.Drawing.Size(225, 21);
+            this.tbImgLinksSavePath.TabIndex = 5;
+            this.tbImgLinksSavePath.Text = "./WallpaperAbyssImgs/links.txt";
+            // 
+            // tbImgSaveDir
+            // 
+            this.tbImgSaveDir.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbImgSaveDir.Location = new System.Drawing.Point(175, 148);
+            this.tbImgSaveDir.Name = "tbImgSaveDir";
+            this.tbImgSaveDir.Size = new System.Drawing.Size(225, 21);
+            this.tbImgSaveDir.TabIndex = 4;
+            this.tbImgSaveDir.Text = "./WallpaperAbyssImgs";
+            // 
+            // tbMinDownloadTime
+            // 
+            this.tbMinDownloadTime.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbMinDownloadTime.Enabled = false;
+            this.tbMinDownloadTime.Location = new System.Drawing.Point(175, 112);
+            this.tbMinDownloadTime.Name = "tbMinDownloadTime";
+            this.tbMinDownloadTime.Size = new System.Drawing.Size(225, 21);
+            this.tbMinDownloadTime.TabIndex = 3;
+            this.tbMinDownloadTime.Text = "4";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(26, 115);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(143, 12);
+            this.label3.TabIndex = 2;
+            this.label3.Text = "每次下载最小耗时(秒)  :";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(26, 38);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(143, 12);
+            this.label2.TabIndex = 1;
+            this.label2.Text = "最大下载线程数        :";
             // 
             // dudMaxDownloadThread
             // 
@@ -158,124 +278,6 @@
             this.dudMaxDownloadThread.TabIndex = 0;
             this.dudMaxDownloadThread.Text = "2";
             this.dudMaxDownloadThread.Wrap = true;
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(26, 38);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(143, 12);
-            this.label2.TabIndex = 1;
-            this.label2.Text = "最大下载线程数        :";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(26, 115);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(143, 12);
-            this.label3.TabIndex = 2;
-            this.label3.Text = "每次下载最小耗时(秒)  :";
-            // 
-            // tbMinDownloadTime
-            // 
-            this.tbMinDownloadTime.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbMinDownloadTime.Location = new System.Drawing.Point(175, 112);
-            this.tbMinDownloadTime.Name = "tbMinDownloadTime";
-            this.tbMinDownloadTime.Size = new System.Drawing.Size(225, 21);
-            this.tbMinDownloadTime.TabIndex = 3;
-            this.tbMinDownloadTime.Text = "4";
-            // 
-            // tbImgSaveDir
-            // 
-            this.tbImgSaveDir.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbImgSaveDir.Location = new System.Drawing.Point(175, 148);
-            this.tbImgSaveDir.Name = "tbImgSaveDir";
-            this.tbImgSaveDir.Size = new System.Drawing.Size(225, 21);
-            this.tbImgSaveDir.TabIndex = 4;
-            this.tbImgSaveDir.Text = "./WallpaperAbyssImgs";
-            // 
-            // tbImgLinksSavePath
-            // 
-            this.tbImgLinksSavePath.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbImgLinksSavePath.Location = new System.Drawing.Point(175, 187);
-            this.tbImgLinksSavePath.Name = "tbImgLinksSavePath";
-            this.tbImgLinksSavePath.Size = new System.Drawing.Size(225, 21);
-            this.tbImgLinksSavePath.TabIndex = 5;
-            this.tbImgLinksSavePath.Text = "./WallpaperAbyssImgs/links.txt";
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(26, 151);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(143, 12);
-            this.label4.TabIndex = 6;
-            this.label4.Text = "图片保存路径          :";
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(26, 190);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(143, 12);
-            this.label5.TabIndex = 7;
-            this.label5.Text = "图片链接保存路径(可选):";
-            // 
-            // rtbTargetLinks
-            // 
-            this.rtbTargetLinks.Location = new System.Drawing.Point(8, 38);
-            this.rtbTargetLinks.Name = "rtbTargetLinks";
-            this.rtbTargetLinks.Size = new System.Drawing.Size(450, 123);
-            this.rtbTargetLinks.TabIndex = 8;
-            this.rtbTargetLinks.Text = "";
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(26, 76);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(143, 12);
-            this.label6.TabIndex = 9;
-            this.label6.Text = "失败重试次数          :";
-            // 
-            // dudMaxRetry
-            // 
-            this.dudMaxRetry.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.dudMaxRetry.Items.Add("0");
-            this.dudMaxRetry.Items.Add("1");
-            this.dudMaxRetry.Items.Add("2");
-            this.dudMaxRetry.Items.Add("3");
-            this.dudMaxRetry.Items.Add("4");
-            this.dudMaxRetry.Items.Add("5");
-            this.dudMaxRetry.Items.Add("6");
-            this.dudMaxRetry.Items.Add("7");
-            this.dudMaxRetry.Items.Add("8");
-            this.dudMaxRetry.Location = new System.Drawing.Point(175, 74);
-            this.dudMaxRetry.Name = "dudMaxRetry";
-            this.dudMaxRetry.ReadOnly = true;
-            this.dudMaxRetry.Size = new System.Drawing.Size(225, 21);
-            this.dudMaxRetry.Sorted = true;
-            this.dudMaxRetry.TabIndex = 8;
-            this.dudMaxRetry.Text = "4";
-            this.dudMaxRetry.Wrap = true;
-            // 
-            // btnStartDownload
-            // 
-            this.btnStartDownload.Location = new System.Drawing.Point(8, 336);
-            this.btnStartDownload.Name = "btnStartDownload";
-            this.btnStartDownload.Size = new System.Drawing.Size(450, 23);
-            this.btnStartDownload.TabIndex = 9;
-            this.btnStartDownload.Text = "Start Download";
-            this.btnStartDownload.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 
