@@ -37,11 +37,6 @@ namespace kuranado.moe.Spider.WallpaperAbyss
             tbImgLinksSavePath.Click += TbImgLinksSavePath_Click;
             dudMaxDownloadThread.SelectedItemChanged += (x, y) => MaxDownloadThread = int.Parse((x as DomainUpDown).SelectedItem as string);
             dudMaxRetry.SelectedItemChanged += (x, y) => MaxRetry = int.Parse((x as DomainUpDown).SelectedItem as string);
-            pbCurDownload.CursorChanged += (x, y) =>
-              {
-                  if ((x as ProgressBar).Value == 100)
-                      (x as ProgressBar).Value = 0;
-              };
             tbMinDownloadTime.Leave += (x, y) =>
                 {
                     var text = (x as TextBox).Text;
@@ -94,17 +89,27 @@ namespace kuranado.moe.Spider.WallpaperAbyss
         {
             var urls = rtbTargetLinks.Text.Split('\r', '\n');
             btnStartDownload.Enabled = false;
-            foreach (var item in urls)
+
+            var startTime = DateTime.Now;
+
+            if (rbWebType.Checked)
             {
-                if (UriCheck(item))
+                foreach (var item in urls)
                 {
-                    await Task.Run(() => Crawl(item));
-                }
-                else
-                {
-                    MessageBox.Show($"链接格式错误:\n{item}");
+                    if (UriCheck(item))
+                        await Task.Run(() => Crawl(item));
+                    else
+                        MessageBox.Show($"链接格式错误:\n{item}");
                 }
             }
+            if(rbResourceType.Checked)
+            {
+                await Task.Run(() => DownloadImg(urls));
+            }
+
+            var endTime = DateTime.Now;
+            rtbDisplay.Text += $"开始下载时间:{startTime},下载结束时间:{endTime},耗时:{endTime - startTime}";
+
             btnStartDownload.Enabled = true;
         }
 
@@ -124,7 +129,7 @@ namespace kuranado.moe.Spider.WallpaperAbyss
         /// <summary>
         /// 下载队列
         /// </summary>
-        private SortedSet<(string imgName, string imgLink)> DownloadList
+        private SortedList<(string imgName, string imgLink), object> DownloadList
         {
             get
             {
@@ -135,7 +140,7 @@ namespace kuranado.moe.Spider.WallpaperAbyss
             }
         }
         private object locker = new object();
-        private SortedSet<(string imgName, string imgLink)> downloadList = new SortedSet<(string imgName, string imgLink)>();
+        private SortedList<(string imgName, string imgLink), object> downloadList = new SortedList<(string imgName, string imgLink), object>();
 
         /// <summary>
         /// 抓取网页链接并存放于SortedSet
@@ -143,10 +148,21 @@ namespace kuranado.moe.Spider.WallpaperAbyss
         /// <param name="uri"></param>
         private void Crawl(string uri)
         {
+            if (!Directory.Exists(ImgSaveDir))
+                Directory.CreateDirectory(ImgSaveDir);
+            if (!Directory.Exists(Path.GetDirectoryName(ImgLinksSavePath)))
+                Directory.CreateDirectory(Path.GetDirectoryName(ImgLinksSavePath));
+            if (File.Exists(ImgLinksSavePath))
+                File.Delete(ImgLinksSavePath);
+
+
             this.Invoke(new Action(() => rtbDisplay.Text += $"\r\n\r\n\r\n开始爬取: {uri}\r\n\r\n"));
 
-            DownloadList.Clear();
-            DownloadList.Add(("", ""));
+            lock (locker)
+            {
+                DownloadList.Clear();
+                DownloadList.Add(("", ""), null);
+            }
 
             Thread download = new Thread(DownloadImg);
             download.Name = "下载线程";
@@ -162,10 +178,10 @@ namespace kuranado.moe.Spider.WallpaperAbyss
             this.Invoke(new Action(() => pbTotalDownload.Maximum = imgTotal));
 
             var nextPageLink = uri;
-            for (; nextPageLink != "#";)
+            for (var curPageNum = 1; nextPageLink != "#"; ++curPageNum)
             {
-                var curPage = html.Load(nextPageLink).DocumentNode;
-                var imgNodes = curPage.SelectNodes(@"//*[@id=""page_container""]/div[6]//*/div[1]/div[2]/div[1]/div[3]/span");
+                var curPage = html.Load($"{uri}&page={curPageNum}").DocumentNode;
+                var imgNodes = curPage.SelectNodes(@"//*/div[1]/div[2]/div[1]/div[3]/span");
                 foreach (var span in imgNodes)
                 {
                     var dataId = span.Attributes["data-id"].Value;
@@ -173,17 +189,23 @@ namespace kuranado.moe.Spider.WallpaperAbyss
                     var dataType = span.Attributes["data-type"].Value;
                     var link = $"https://initiate.alphacoders.com/download/wallpaper/{dataId}/{dataServer}/{dataType}";
 
-                    DownloadList.Add(($"{dataId}.{dataType}", link));
+                    lock (locker)
+                    {
+                        DownloadList.Add(($"{dataId}.{dataType}", link), null);
+                    }
                     File.AppendAllLines(ImgLinksSavePath, new string[] { link });
                 }
                 nextPageLink = curPage.SelectNodes(@"//*[@id=""next_page""]")[0].Attributes["href"].Value;
             }
 
 
-            //  wait download complete
+            //  waiting downloaded
             for (; DownloadList.Count > 1;)
                 ;
-            DownloadList.Clear();
+            lock (locker)
+            {
+                DownloadList.Clear();
+            }
         }
 
 
@@ -195,26 +217,82 @@ namespace kuranado.moe.Spider.WallpaperAbyss
             var curDownloadingCount = 0;
             for (; DownloadList.Count > 0;)
             {
-                if (curDownloadingCount < MaxDownloadThread && DownloadList.Count > 1)
+                if (curDownloadingCount < MaxDownloadThread && DownloadList.Count > curDownloadingCount + 1)
                 {
-                    var imgInfo = DownloadList.Last();
+                    (string imgName, string imgLink) imgInfo;
+                    lock (locker)
+                    {
+                        imgInfo = DownloadList.Keys[1 + curDownloadingCount];
+                    }
                     this.Invoke(new Action(() => rtbDisplay.Text += $"正在下载: {imgInfo.imgLink}\r\n"));
                     var webClient = new WebClient();
-                    webClient.DownloadFileAsync(new Uri(imgInfo.imgLink), imgInfo.imgName);
                     webClient.DownloadProgressChanged += (x, y) =>
                     {
-                        pbCurDownload.Value += (y.ProgressPercentage / MaxDownloadThread);
+                        this.BeginInvoke(new Action(
+                            () =>
+                            {
+                                var tmp = pbCurDownload.Value + y.ProgressPercentage / MaxDownloadThread;
+                                pbCurDownload.Value = tmp > 100 ? 0 : tmp;
+                            }
+                            ));
                     };
                     webClient.DownloadFileCompleted += (x, y) =>
                      {
                          --curDownloadingCount;
-                         DownloadList.Remove(imgInfo);
-                         this.Invoke(new Action(() => pbTotalDownload.Value += 1));
-                         this.Invoke(new Action(() => rtbDisplay.Text += $"下载完成: {imgInfo.imgLink}\r\n"));
+                         lock (locker)
+                         {
+                             DownloadList.Remove(imgInfo);
+                         }
+                         this.Invoke(new Action(() => pbTotalDownload.Value += pbTotalDownload.Value == pbTotalDownload.Maximum ? 0 : 1));
+                         this.Invoke(new Action(() => rtbDisplay.Text += $"完成下载任务:    {imgInfo.imgName}\r\n"));
                      };
                     ++curDownloadingCount;
+                    webClient.DownloadFileAsync(new Uri(imgInfo.imgLink), Path.Combine(ImgSaveDir, imgInfo.imgName));
                 }
+                if (curDownloadingCount == MaxDownloadThread)
+                    Thread.Sleep(1000 * MinDownloadTime);
             }
         }
-    }
+
+
+        /// <summary>
+        /// 异步下载给定的链接
+        /// </summary>
+        /// <param name="links"></param>
+        private void DownloadImg(string[] links)
+        {
+            var curDownloadingCount = 0;
+            foreach(var link in links)
+            {
+                //  waiting downloaded
+                for (; curDownloadingCount >= MaxDownloadThread;)
+                    ;
+
+                var imgInfo = link.Split('/');
+                var imgName = $"{imgInfo[imgInfo.Length - 3]}.{imgInfo[imgInfo.Length - 1]}";
+
+                var webClient = new WebClient();
+                webClient.DownloadProgressChanged += (x, y) =>
+                {
+                    this.BeginInvoke(new Action(
+                        () =>
+                        {
+                            var tmp = pbCurDownload.Value + y.ProgressPercentage / MaxDownloadThread;
+                            pbCurDownload.Value = tmp > 100 ? 0 : tmp;
+                        }
+                        ));
+                };
+                webClient.DownloadFileCompleted += (x, y) =>
+                {
+                    --curDownloadingCount;
+                    this.Invoke(new Action(() => pbTotalDownload.Value += pbTotalDownload.Value == pbTotalDownload.Maximum ? 0 : 1));
+                    this.Invoke(new Action(() => rtbDisplay.Text += $"完成下载任务:    {imgName}\r\n"));
+                };
+                webClient.DownloadFileAsync(new Uri(link), Path.Combine(ImgSaveDir, imgName));
+
+                ++curDownloadingCount;
+                this.Invoke(new Action(() => rtbDisplay.Text += $"创建下载任务:    {link}\r\n"));
+            }
+        }
+    }// end of class
 }
