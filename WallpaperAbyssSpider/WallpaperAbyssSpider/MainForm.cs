@@ -50,6 +50,13 @@ namespace kuranado.moe.Spider.WallpaperAbyss
                         MinDownloadTime = num;
                     }
                 };
+            this.FormClosing += (x, y) =>
+              {
+                  if (btnStartDownload.Enabled == false && MessageBox.Show("下载尚未完成,确认要关闭吗?", "警告", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                  {
+                      Application.Exit();
+                  }
+              };
         }
 
 
@@ -87,8 +94,17 @@ namespace kuranado.moe.Spider.WallpaperAbyss
 
         private async void BtnStartDownloadAsync_Click(object sender, EventArgs e)
         {
+            if (!Directory.Exists(ImgSaveDir))
+                Directory.CreateDirectory(ImgSaveDir);
+            if (!Directory.Exists(Path.GetDirectoryName(ImgLinksSavePath)))
+                Directory.CreateDirectory(Path.GetDirectoryName(ImgLinksSavePath));
+            if (File.Exists(ImgLinksSavePath))
+                File.Delete(ImgLinksSavePath);
+
             var urls = rtbTargetLinks.Text.Split('\r', '\n');
             btnStartDownload.Enabled = false;
+            foreach (Control item in tpSetting.Controls)
+                item.Enabled = false;
 
             var startTime = DateTime.Now;
 
@@ -102,14 +118,16 @@ namespace kuranado.moe.Spider.WallpaperAbyss
                         MessageBox.Show($"链接格式错误:\n{item}");
                 }
             }
-            if(rbResourceType.Checked)
+            if (rbResourceType.Checked)
             {
                 await Task.Run(() => DownloadImg(urls));
             }
 
             var endTime = DateTime.Now;
-            rtbDisplay.Text += $"开始下载时间:{startTime},下载结束时间:{endTime},耗时:{endTime - startTime}";
+            rtbDisplay.Text += $"开始下载时间:{startTime},下载结束时间:{endTime},耗时:{endTime - startTime}\r\n";
 
+            foreach (Control item in tpSetting.Controls)
+                item.Enabled = true;
             btnStartDownload.Enabled = true;
         }
 
@@ -127,47 +145,12 @@ namespace kuranado.moe.Spider.WallpaperAbyss
 
 
         /// <summary>
-        /// 下载队列
-        /// </summary>
-        private SortedList<(string imgName, string imgLink), object> DownloadList
-        {
-            get
-            {
-                lock (locker)
-                {
-                    return downloadList;
-                }
-            }
-        }
-        private object locker = new object();
-        private SortedList<(string imgName, string imgLink), object> downloadList = new SortedList<(string imgName, string imgLink), object>();
-
-        /// <summary>
         /// 抓取网页链接并存放于SortedSet
         /// </summary>
         /// <param name="uri"></param>
         private void Crawl(string uri)
         {
-            if (!Directory.Exists(ImgSaveDir))
-                Directory.CreateDirectory(ImgSaveDir);
-            if (!Directory.Exists(Path.GetDirectoryName(ImgLinksSavePath)))
-                Directory.CreateDirectory(Path.GetDirectoryName(ImgLinksSavePath));
-            if (File.Exists(ImgLinksSavePath))
-                File.Delete(ImgLinksSavePath);
-
-
-            this.Invoke(new Action(() => rtbDisplay.Text += $"\r\n\r\n\r\n开始爬取: {uri}\r\n\r\n"));
-
-            lock (locker)
-            {
-                DownloadList.Clear();
-                DownloadList.Add(("", ""), null);
-            }
-
-            Thread download = new Thread(DownloadImg);
-            download.Name = "下载线程";
-            download.Start();
-
+            this.Invoke(new Action(() => rtbDisplay.Text += $"开始爬取: {uri}\r\n\r\n"));
 
             var html = new HtmlWeb();
             var htmlDoc = html.Load(uri);
@@ -175,8 +158,9 @@ namespace kuranado.moe.Spider.WallpaperAbyss
             //  进度条
             var title = htmlDoc.DocumentNode.SelectNodes(@"/html/head/title")[0].InnerText;
             var imgTotal = int.Parse(Regex.Match(title, @"\d+").Value);
-            this.Invoke(new Action(() => pbTotalDownload.Maximum = imgTotal));
+            this.Invoke(new Action(() => pbCurDownload.Maximum = pbTotalDownload.Maximum = imgTotal));
 
+            List<string> links = new List<string>();
             var nextPageLink = uri;
             for (var curPageNum = 1; nextPageLink != "#"; ++curPageNum)
             {
@@ -189,69 +173,21 @@ namespace kuranado.moe.Spider.WallpaperAbyss
                     var dataType = span.Attributes["data-type"].Value;
                     var link = $"https://initiate.alphacoders.com/download/wallpaper/{dataId}/{dataServer}/{dataType}";
 
-                    lock (locker)
+                    this.Invoke(new Action(() =>
                     {
-                        DownloadList.Add(($"{dataId}.{dataType}", link), null);
-                    }
-                    File.AppendAllLines(ImgLinksSavePath, new string[] { link });
+                        rtbDisplay.Text += $"已获取图片{{{dataId}.{dataType}}}下载链接~\r\n";
+                        pbCurDownload.Value += pbCurDownload.Value == pbCurDownload.Maximum ? 0 : 1;
+                    }));
+                    links.Add(link);
+                    File.AppendAllText(ImgLinksSavePath, $"{link}\r\n", Encoding.UTF8);
                 }
                 nextPageLink = curPage.SelectNodes(@"//*[@id=""next_page""]")[0].Attributes["href"].Value;
             }
 
-
-            //  waiting downloaded
-            for (; DownloadList.Count > 1;)
-                ;
-            lock (locker)
-            {
-                DownloadList.Clear();
-            }
-        }
-
-
-        /// <summary>
-        /// 下载抓取的图片,直至所有图片均已下载完毕
-        /// </summary>
-        private void DownloadImg()
-        {
-            var curDownloadingCount = 0;
-            for (; DownloadList.Count > 0;)
-            {
-                if (curDownloadingCount < MaxDownloadThread && DownloadList.Count > curDownloadingCount + 1)
-                {
-                    (string imgName, string imgLink) imgInfo;
-                    lock (locker)
-                    {
-                        imgInfo = DownloadList.Keys[1 + curDownloadingCount];
-                    }
-                    this.Invoke(new Action(() => rtbDisplay.Text += $"正在下载: {imgInfo.imgLink}\r\n"));
-                    var webClient = new WebClient();
-                    webClient.DownloadProgressChanged += (x, y) =>
-                    {
-                        this.BeginInvoke(new Action(
-                            () =>
-                            {
-                                var tmp = pbCurDownload.Value + y.ProgressPercentage / MaxDownloadThread;
-                                pbCurDownload.Value = tmp > 100 ? 0 : tmp;
-                            }
-                            ));
-                    };
-                    webClient.DownloadFileCompleted += (x, y) =>
-                     {
-                         --curDownloadingCount;
-                         lock (locker)
-                         {
-                             DownloadList.Remove(imgInfo);
-                         }
-                         this.Invoke(new Action(() => pbTotalDownload.Value += pbTotalDownload.Value == pbTotalDownload.Maximum ? 0 : 1));
-                         this.Invoke(new Action(() => rtbDisplay.Text += $"完成下载任务:    {imgInfo.imgName}\r\n"));
-                     };
-                    ++curDownloadingCount;
-                    webClient.DownloadFileAsync(new Uri(imgInfo.imgLink), Path.Combine(ImgSaveDir, imgInfo.imgName));
-                }
-                if (curDownloadingCount == MaxDownloadThread)
-                    Thread.Sleep(1000 * MinDownloadTime);
-            }
+            this.Invoke(new Action(() => pbCurDownload.Maximum = MaxDownloadThread * 100));
+            this.Invoke(new Action(() => rtbDisplay.Text += $"开始爬取: {uri}\r\n\r\n"));
+            DownloadImg(links.ToArray());
+            this.Invoke(new Action(() => rtbDisplay.Text += $"爬取完成: {uri}\r\n\r\n\r\n\r\n"));
         }
 
 
@@ -261,12 +197,16 @@ namespace kuranado.moe.Spider.WallpaperAbyss
         /// <param name="links"></param>
         private void DownloadImg(string[] links)
         {
-            var curDownloadingCount = 0;
-            foreach(var link in links)
+            this.Invoke(new Action(() => pbCurDownload.Value = 0));
+            this.Invoke(new Action(() => pbTotalDownload.Value = 0));
+
+            var downloadingCount = 0;
+            var downloadFailedCount = 0;
+            foreach (var link in links)
             {
                 //  waiting downloaded
-                for (; curDownloadingCount >= MaxDownloadThread;)
-                    ;
+                for (; downloadingCount >= MaxDownloadThread;)
+                    Thread.Sleep(1000);
 
                 var imgInfo = link.Split('/');
                 var imgName = $"{imgInfo[imgInfo.Length - 3]}.{imgInfo[imgInfo.Length - 1]}";
@@ -277,22 +217,31 @@ namespace kuranado.moe.Spider.WallpaperAbyss
                     this.BeginInvoke(new Action(
                         () =>
                         {
-                            var tmp = pbCurDownload.Value + y.ProgressPercentage / MaxDownloadThread;
-                            pbCurDownload.Value = tmp > 100 ? 0 : tmp;
+                            var tmp = pbCurDownload.Value + y.ProgressPercentage;
+                            pbCurDownload.Value = tmp > 100 * MaxDownloadThread ? 0 : tmp;
                         }
                         ));
                 };
                 webClient.DownloadFileCompleted += (x, y) =>
                 {
-                    --curDownloadingCount;
+                    if (y.Error != null)
+                    {
+                        downloadFailedCount += 1;
+                        File.AppendAllText("error.log", $"{y.UserState}:\r\nmessage = {y.Error.Message}\r\nsource = {y.Error.Source}\r\nstack trace = {y.Error.StackTrace}");
+                    }
+                    --downloadingCount;
                     this.Invoke(new Action(() => pbTotalDownload.Value += pbTotalDownload.Value == pbTotalDownload.Maximum ? 0 : 1));
                     this.Invoke(new Action(() => rtbDisplay.Text += $"完成下载任务:    {imgName}\r\n"));
                 };
                 webClient.DownloadFileAsync(new Uri(link), Path.Combine(ImgSaveDir, imgName));
 
-                ++curDownloadingCount;
+                ++downloadingCount;
                 this.Invoke(new Action(() => rtbDisplay.Text += $"创建下载任务:    {link}\r\n"));
             }
+
+            this.Invoke(new Action(() => pbCurDownload.Value = pbCurDownload.Maximum));
+            this.Invoke(new Action(() => pbTotalDownload.Value = pbCurDownload.Maximum));
+            this.Invoke(new Action(() => rtbDisplay.Text += $"总计{links.Length}个下载任务,其中{downloadFailedCount}个下载失败,详见{Path.Combine(Environment.CurrentDirectory, "error.log")}"));
         }
     }// end of class
 }

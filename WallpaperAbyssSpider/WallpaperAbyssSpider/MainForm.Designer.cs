@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.label1 = new System.Windows.Forms.Label();
             this.tcMain = new System.Windows.Forms.TabControl();
             this.tpDownload = new System.Windows.Forms.TabPage();
@@ -37,6 +38,9 @@
             this.pbTotalDownload = new System.Windows.Forms.ProgressBar();
             this.pbCurDownload = new System.Windows.Forms.ProgressBar();
             this.tpSetting = new System.Windows.Forms.TabPage();
+            this.gbLinkType = new System.Windows.Forms.GroupBox();
+            this.rbResourceType = new System.Windows.Forms.RadioButton();
+            this.rbWebType = new System.Windows.Forms.RadioButton();
             this.label6 = new System.Windows.Forms.Label();
             this.dudMaxRetry = new System.Windows.Forms.DomainUpDown();
             this.label5 = new System.Windows.Forms.Label();
@@ -47,9 +51,6 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.dudMaxDownloadThread = new System.Windows.Forms.DomainUpDown();
-            this.gbLinkType = new System.Windows.Forms.GroupBox();
-            this.rbWebType = new System.Windows.Forms.RadioButton();
-            this.rbResourceType = new System.Windows.Forms.RadioButton();
             this.tcMain.SuspendLayout();
             this.tpDownload.SuspendLayout();
             this.tpSetting.SuspendLayout();
@@ -159,6 +160,46 @@
             this.tpSetting.Text = "设置";
             this.tpSetting.UseVisualStyleBackColor = true;
             // 
+            // gbLinkType
+            // 
+            this.gbLinkType.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.gbLinkType.Controls.Add(this.rbResourceType);
+            this.gbLinkType.Controls.Add(this.rbWebType);
+            this.gbLinkType.Location = new System.Drawing.Point(28, 232);
+            this.gbLinkType.Name = "gbLinkType";
+            this.gbLinkType.Size = new System.Drawing.Size(372, 68);
+            this.gbLinkType.TabIndex = 0;
+            this.gbLinkType.TabStop = false;
+            this.gbLinkType.Text = "给定链接类型";
+            // 
+            // rbResourceType
+            // 
+            this.rbResourceType.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.rbResourceType.AutoSize = true;
+            this.rbResourceType.Location = new System.Drawing.Point(222, 29);
+            this.rbResourceType.Name = "rbResourceType";
+            this.rbResourceType.Size = new System.Drawing.Size(83, 16);
+            this.rbResourceType.TabIndex = 1;
+            this.rbResourceType.TabStop = true;
+            this.rbResourceType.Text = "待下载图片";
+            this.rbResourceType.UseVisualStyleBackColor = true;
+            // 
+            // rbWebType
+            // 
+            this.rbWebType.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.rbWebType.AutoSize = true;
+            this.rbWebType.Checked = true;
+            this.rbWebType.Location = new System.Drawing.Point(71, 29);
+            this.rbWebType.Name = "rbWebType";
+            this.rbWebType.Size = new System.Drawing.Size(83, 16);
+            this.rbWebType.TabIndex = 0;
+            this.rbWebType.TabStop = true;
+            this.rbWebType.Text = "待爬取网页";
+            this.rbWebType.UseVisualStyleBackColor = true;
+            // 
             // label6
             // 
             this.label6.AutoSize = true;
@@ -237,6 +278,7 @@
             this.tbMinDownloadTime.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbMinDownloadTime.Enabled = false;
             this.tbMinDownloadTime.Location = new System.Drawing.Point(175, 112);
             this.tbMinDownloadTime.Name = "tbMinDownloadTime";
             this.tbMinDownloadTime.Size = new System.Drawing.Size(225, 21);
@@ -281,48 +323,8 @@
             this.dudMaxDownloadThread.Size = new System.Drawing.Size(225, 21);
             this.dudMaxDownloadThread.Sorted = true;
             this.dudMaxDownloadThread.TabIndex = 0;
-            this.dudMaxDownloadThread.Text = "2";
+            this.dudMaxDownloadThread.Text = "4";
             this.dudMaxDownloadThread.Wrap = true;
-            // 
-            // gbLinkType
-            // 
-            this.gbLinkType.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.gbLinkType.Controls.Add(this.rbResourceType);
-            this.gbLinkType.Controls.Add(this.rbWebType);
-            this.gbLinkType.Location = new System.Drawing.Point(28, 232);
-            this.gbLinkType.Name = "gbLinkType";
-            this.gbLinkType.Size = new System.Drawing.Size(372, 68);
-            this.gbLinkType.TabIndex = 0;
-            this.gbLinkType.TabStop = false;
-            this.gbLinkType.Text = "给定链接类型";
-            // 
-            // rbWebType
-            // 
-            this.rbWebType.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.rbWebType.AutoSize = true;
-            this.rbWebType.Checked = true;
-            this.rbWebType.Location = new System.Drawing.Point(71, 29);
-            this.rbWebType.Name = "rbWebType";
-            this.rbWebType.Size = new System.Drawing.Size(83, 16);
-            this.rbWebType.TabIndex = 0;
-            this.rbWebType.TabStop = true;
-            this.rbWebType.Text = "代爬取网页";
-            this.rbWebType.UseVisualStyleBackColor = true;
-            // 
-            // rbResourceType
-            // 
-            this.rbResourceType.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.rbResourceType.AutoSize = true;
-            this.rbResourceType.Location = new System.Drawing.Point(222, 29);
-            this.rbResourceType.Name = "rbResourceType";
-            this.rbResourceType.Size = new System.Drawing.Size(83, 16);
-            this.rbResourceType.TabIndex = 1;
-            this.rbResourceType.TabStop = true;
-            this.rbResourceType.Text = "待下载图片";
-            this.rbResourceType.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 
@@ -330,6 +332,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(496, 473);
             this.Controls.Add(this.tcMain);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Wallpaper Abyss Spider by kuranadomoe";
